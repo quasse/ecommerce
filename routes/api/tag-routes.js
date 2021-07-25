@@ -10,8 +10,6 @@ router.get("/", (req, res) => {
     include: [
       {
         model: Product,
-        //for some reason this doesn't just return the product name
-        attributes: ["product_name"],
       },
     ],
   })

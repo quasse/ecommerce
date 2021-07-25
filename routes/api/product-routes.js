@@ -9,14 +9,11 @@ router.get("/", (req, res) => {
   // be sure to include its associated Category and Tag data
   //TODO: Doesn't include Category and Tag attributes
   Product.findAll({
-    indclude: [
-      {
-        model: Category,
-        attributes: ["category_name"],
-      },
+    include: [
+      Category,
       {
         model: Tag,
-        attributes: ["tag_name"],
+        through: ProductTag,
       },
     ],
   }).then((dbProduct) => {
@@ -28,6 +25,24 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  Product.findOne({
+    where: {
+      id: req.params.id,
+    },
+    include: [
+      {
+        model: Category,
+      },
+      {
+        model: Tag,
+      },
+    ],
+  })
+    .then((dbProductData) => res.json(dbProductData))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
 // create new product
@@ -106,6 +121,22 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   // delete one product by its `id` value
+  Product.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((dbProductData) => {
+      if (!dbProductData) {
+        res.status(404).json({ message: "No category found with this id" });
+        return;
+      }
+      res.json(dbProductData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
 module.exports = router;
